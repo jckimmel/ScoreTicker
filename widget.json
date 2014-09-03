@@ -1,0 +1,14 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1331\cocoasubrtf120
+{\fonttbl\f0\fnil\fcharset0 Consolas;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red245\green245\blue245;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\{\
+  "name": \'93ScoreTicker\'94,\
+  "description": \'93Displays current sport scores in a ticker-style format\'94,\
+  "author": \'93Jim Kimmel\'93,\
+  "email": \'93jimkimmel@gmail.com\'93\
+\}}
