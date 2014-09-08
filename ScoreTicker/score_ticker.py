@@ -98,7 +98,7 @@ def golf(league):
 
 							# output	
 						
-							print header+ ' ' +golfer+' ('+status+')   ' + round_scores+';'
+							print header+ '<br>'+ position +'- ' +golfer+' ('+status+')   ' + round_scores+';'
 						
 							
 		except Exception, e:
@@ -112,15 +112,41 @@ def golf(league):
 # Standard Schedule/Scores Pull
 
 def today(league):
+    
+    SportsInfoURL = "http://scores.nbcsports.msnbc.com/ticker/data/sports.js.asp?jsonp=true&sport=%s&period=%d"
     yyyymmdd = int(datetime.datetime.now(\
-            pytz.timezone('US/Eastern')).strftime("%Y%m%d"))
+    pytz.timezone('US/Eastern')).strftime("%Y%m%d"))
     date = datetime.datetime.now(pytz.timezone('US/Eastern')).strftime("%D")
+    
+    if league == "CFB" or league == "NFL":
+		f = urllib2.urlopen(SportsInfoURL % (league, yyyymmdd))
+		jsonp = f.read()
+		f.close()
+		json_str = jsonp.replace('shsMSNBCTicker.loadSportsData(', '').replace(');', '')
+		json_parsed = json.loads(json_str)
+			
+		#for sport_str in json_parsed.get('sport',[]):
+		for sport_str in json_parsed:
+				sport = sport_str.get('sport').strip("#1234567890 ")
+				if league in sport:
+					period_tree = sport_str.get('period')
+					for period_str in period_tree:
+						period = period_str.get('period')
+						default = period_str.get('isdefault')
+						label = period_str.get('label').strip("#1234567890 ")
+						if default:
+							currperiod = int(period)
+							currlabel = label
+
     games = []
     max_attempts = 3
 
     for attempt in range(max_attempts):
 		try:
-			f = urllib2.urlopen(URL % (league, yyyymmdd))
+			if league == "CFB" or league == "NFL":
+				f = urllib2.urlopen(URL % (league, currperiod))
+			else:
+				f = urllib2.urlopen(URL % (league, yyyymmdd))
 			jsonp = f.read()
 			f.close()
 			json_str = jsonp.replace(\
@@ -138,8 +164,14 @@ def today(league):
 					visiting_tree = game_tree.find('visiting-team')
 					home_tree = game_tree.find('home-team')
 					gamestate_tree = game_tree.find('gamestate')
-					home = home_tree.get('alias').strip("#1234567890 ")
-					away = visiting_tree.get('alias').strip("#1234567890 ")
+					if league == "CFB":
+						home = home_tree.get('alias')
+						away = visiting_tree.get('alias')
+
+					else:
+						home = home_tree.get('alias').strip("#1234567890 ")
+						away = visiting_tree.get('alias').strip("#1234567890 ")
+						
 					game_start = int(time.mktime(time.strptime(\
 						'%s %d' % (gamestate_tree.get('gametime'), yyyymmdd),\
 						'%I:%M %p %Y%m%d')))
@@ -168,7 +200,7 @@ def today(league):
 #
 # List of available leagues may change at "http://scores.nbcsports.msnbc.com/ticker/data/sports.js.asp"
 
-for league in ['MLB','NFL', 'PGA','NHL','CFB']:
+for league in ['NFL', 'CFB', 'PGA', 'MLB', 'NHL']:
    	if "PGA" in league:
    		golf(league)
    	else:
